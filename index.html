@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>Game Roadmap Tracker</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--text:#f1f5f9;--muted:#94a3b8;--accent:#22c55e;--accent2:#38bdf8;--warn:#f59e0b;--line:#334155}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:80px}
+.wrap{max-width:640px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 2px}
+h2{font-size:17px;margin:0 0 10px}
+.muted{color:var(--muted);font-size:13px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin:12px 0;border:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.pill{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;background:var(--card2);color:var(--accent2)}
+.pill.g{color:var(--accent)}.pill.w{color:var(--warn)}
+.bar{height:8px;background:var(--card2);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:12px;background:var(--card2);margin:8px 0}
+.task input{width:22px;height:22px;margin-top:2px;accent-color:var(--accent);flex:none}
+.task.done span{opacity:.5;text-decoration:line-through}
+.mins{font-size:12px;color:var(--muted);display:block;margin-top:2px;font-style:normal}
+.big{font-size:34px;font-weight:700}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card2);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-size:20px}
+button{background:var(--accent);color:#052e16;border:0;border-radius:12px;padding:12px 16px;font-size:15px;font-weight:600;width:100%}
+button.sec{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+input[type=time],input[type=date]{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;width:100%}
+label{display:block;margin:10px 0 4px;font-size:13px;color:var(--muted)}
+nav{position:fixed;left:0;right:0;bottom:0;background:#0b1220;border-top:1px solid var(--line);display:flex;z-index:10}
+nav button{background:none;color:var(--muted);border-radius:0;padding:12px 4px;font-size:12px;flex:1}
+nav button.on{color:var(--accent)}
+nav button span{display:block;font-size:20px}
+.week{border-left:3px solid var(--line);padding-left:12px;margin:10px 0}
+.week.cur{border-color:var(--accent)}
+.week summary{font-weight:600;padding:6px 0}
+.ms{color:var(--warn);font-size:13px;margin-top:6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:#0b1220;border:1px solid var(--accent);color:var(--text);padding:10px 16px;border-radius:99px;font-size:14px;z-index:20}
+.notice{background:#2a2110;border:1px solid var(--warn);border-radius:12px;padding:10px;font-size:13px;margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<nav>
+<button data-tab="today" class="on"><span>📅</span>Today</button>
+<button data-tab="plan"><span>🗺️</span>Plan</button>
+<button data-tab="progress"><span>📈</span>Progress</button>
+<button data-tab="settings"><span>⚙️</span>Settings</button>
+</nav>
+<script>
+const PHASES={1:{name:"Phase 1 - Learn the Basics",from:1,to:6},2:{name:"Phase 2 - Core Engine",from:7,to:13},3:{name:"Phase 3 - Content and Look",from:14,to:20},4:{name:"Phase 4 - Polish and Release",from:21,to:26},5:{name:"Phase 5 - Test and Publish",from:27,to:34}};
+const WEEKS=[
+{w:1,t:"GDScript from zero (part 1)",learn:"GDQuest 'Learn GDScript From Zero': variables, functions, if/else",build:"Install Godot 4.7.x. Explore the editor, make an empty project",write:"Write 3 childhood scenarios in Google Sheets: situation + 2-3 choices + stat effects",ms:"Godot installed and 10+ GDQuest lessons done"},
+{w:2,t:"GDScript from zero (part 2)",learn:"GDQuest course: loops, arrays, dictionaries. Finish the course",build:"Redo any hard lesson. Write small scripts of your own",write:"Write 5 more scenarios (total 8). Make choices tempting, not preachy",ms:"GDQuest course finished"},
+{w:3,t:"Godot basics: nodes and scenes",learn:"Godot docs: 'Your first 2D game' tutorial",build:"Follow the tutorial in your own project. Make a GitHub account and first repo",write:"Write 5 more scenarios (total 13)",ms:"First 2D tutorial complete and code on GitHub"},
+{w:4,t:"UI: Control nodes",learn:"Godot docs: Control nodes, Label, Button, signals",build:"Build a Yes/No quiz: one question, two buttons, a score",write:"Write 5 more scenarios (total 18)",ms:"Quiz app runs on your PC"},
+{w:5,t:"Prototype v0.1 (part 1)",learn:"Godot docs: changing scenes. Read the Android export page",build:"One scenario text, 2-3 choice buttons, one stat that changes",write:"Write 5 more scenarios (total 23)",ms:"Scenario, choices and one stat working"},
+{w:6,t:"Prototype v0.1 (part 2): first phone build",learn:"Set up Android SDK/JDK in Godot. Turn on USB debugging on your phone",build:"Export a debug build and run it on your phone. Add a Next button",write:"Reach 25 scenarios written",ms:"MILESTONE: prototype runs on your phone"},
+{w:7,t:"Data-driven scenarios (JSON)",learn:"Learn JSON basics and Godot FileAccess + JSON.parse_string",build:"Move scenarios into a JSON file. Write a loader",write:"Convert Sheets scenarios into JSON (id, stage, text, choices, effects)",ms:"Scenarios load from JSON"},
+{w:8,t:"Data-driven scenarios (part 2)",learn:"Godot docs: dictionaries and clean code structure",build:"Show text and any number of choice buttons from JSON",write:"Write Childhood scenarios up to 20 in final JSON format",ms:"New scenario works by editing JSON only"},
+{w:9,t:"Four stats system",learn:"Godot docs: signals and autoload (singletons)",build:"Add Knowledge, Character, Discipline, Relationships (0-100)",write:"Finish Childhood stage: 25 scenarios",ms:"All four stats change from choices"},
+{w:10,t:"Stat bars and age counter",learn:"Godot docs: ProgressBar, Theme basics",build:"Show 4 stat bars and the age on screen",write:"Start School stage: write 10 scenarios",ms:"Stats and age visible"},
+{w:11,t:"Life stages",learn:"Godot docs: match statements, enums",build:"Stage progression: Childhood, School, University, Adult",write:"School stage: reach 20 scenarios",ms:"Game moves through stages by itself"},
+{w:12,t:"Flags = delayed consequences",learn:"Study flags: a dictionary of true/false facts about past choices",build:"Add flags. Some scenarios only appear if a past flag is set",write:"Write 8 delayed-consequence scenarios",ms:"3+ scenarios triggered by past choices"},
+{w:13,t:"Save/load and first playtest",learn:"Godot docs: saving games (FileAccess, user:// path)",build:"Add save/load. Let 3 friends play while you watch silently",write:"Note where friends got confused or bored. Fix scenarios",ms:"MILESTONE: full Childhood stage playable and saves"},
+{w:14,t:"School stage content",learn:"Study pacing: why short scenes work on mobile",build:"Fix playtest bugs. Build the stage summary screen",write:"School stage: finish 25 scenarios",ms:"School stage complete"},
+{w:15,t:"Stage summary screen",learn:"Godot docs: animations and Tween basics",build:"'Who you are becoming' screen after each stage",write:"Write summary texts for stat combinations",ms:"Stage summary works"},
+{w:16,t:"Balance and test School stage",learn:"Read about game balance: reward vs risk",build:"Tune numbers so no single choice always wins",write:"Rewrite the weakest 5 scenarios",ms:"School stage balanced"},
+{w:17,t:"University stage",learn:"Study real Bangladeshi student situations",build:"Add University scenarios into the game",write:"University stage: write 15 scenarios",ms:"University stage 60% done"},
+{w:18,t:"University and Adult stage",learn:"Godot docs: localization (Bangla + English)",build:"Add Adult stage scenarios and wire them in",write:"Finish University (25) and start Adult",ms:"University complete"},
+{w:19,t:"Adult stage and 5 endings",learn:"Study how endings are chosen from stat totals",build:"Build 5 endings. Add main menu and settings screen",write:"Finish Adult stage (25). Write 5 endings",ms:"Full game playable start to ending"},
+{w:20,t:"Art, audio, Bangla font, start Play account",learn:"Kenney.nl and Pixabay: free art and music. Bangla fonts in Godot",build:"Pick ONE art style. Add music, sounds, Bangla font",write:"Start Play Console: international card, ID and address proof",ms:"Art and audio in. Play Console started"},
+{w:21,t:"Bug fixing and multi-phone testing",learn:"Godot docs: debugging",build:"Fix all known bugs. Test on 3+ phones",write:"Fix typos and unclear scenarios",ms:"No known crashes"},
+{w:22,t:"Balance all 5 endings",learn:"Read about playtest methods",build:"Make sure all 5 endings are reachable",write:"Final pass on all text (Bangla and English)",ms:"All endings reachable"},
+{w:23,t:"Tutorial and About screen",learn:"Study good onboarding for mobile games",build:"Add a short tutorial and About page",write:"Write tutorial and About text",ms:"New player understands in 30 seconds"},
+{w:24,t:"Export setup and keystore",learn:"Godot docs: Exporting for Android, Google Play section",build:"Make release keystore. BACK IT UP in 3 places. Export signed AAB",write:"Write privacy policy (collect no data), host on GitHub Pages",ms:"Signed AAB exports. Keystore backed up"},
+{w:25,t:"Store assets",learn:"Read Play Console help: store listing",build:"Make 512x512 icon, 1024x500 feature graphic, 4-8 screenshots",write:"Write short and full description (Bangla and English)",ms:"All store assets ready"},
+{w:26,t:"Release candidate: freeze",learn:"Read Play Console: content rating and data safety",build:"Final full playthrough. Freeze all content",write:"Recruit 20 testers by message",ms:"MILESTONE: release candidate frozen, 20 testers ready"},
+{w:27,t:"Closed test starts",learn:"Play Console: closed testing setup",build:"Upload AAB to closed testing. Add testers. Start the 14-day clock",write:"Message testers personally with the opt-in link. Need 12+",ms:"12+ testers opted in"},
+{w:28,t:"Closed test (week 1 of 2)",learn:"Read tester feedback carefully",build:"Fix real bugs. Remind testers to open the app",write:"Reply to every tester",ms:"Testers actively using the app"},
+{w:29,t:"Closed test (week 2 of 2)",learn:"Read the production-access questionnaire",build:"Keep testers engaged. Never drop below 12",write:"Prepare questionnaire answers",ms:"14 continuous days completed"},
+{w:30,t:"Buffer week",learn:"Rest and review",build:"Fix last issues",write:"Polish store listing text",ms:"Ready to apply"},
+{w:31,t:"Apply for production",learn:"Re-read Play policies for education apps",build:"Fill the production access questionnaire and submit",write:"Double check listing and privacy link",ms:"Production access applied"},
+{w:32,t:"Google review",learn:"Wait. Read about post-launch promotion",build:"Answer any Google message fast",write:"Plan launch posts",ms:"Review in progress"},
+{w:33,t:"Review buffer",learn:"Prepare for feedback after launch",build:"Resubmit if needed",write:"Prepare launch announcement",ms:"Approved or resubmitted"},
+{w:34,t:"LAUNCH",learn:"Study how to answer reviews",build:"Publish. Share the link everywhere",write:"Ask 10 friends for honest reviews",ms:"GAME IS LIVE ON GOOGLE PLAY"}
+];
+  const KEY="roadmapApp.v2";
+let S=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d)return d}catch(e){}
+return{start:"2026-10-01",done:{},times:{morning:"07:00",mid:"14:00",evening:"20:30"},notif:true,examWeeks:{}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(S))}
+function ymd(d){const z=new Date(d);z.setHours(0,0,0,0);return z.getFullYear()+"-"+String(z.getMonth()+1).padStart(2,"0")+"-"+String(z.getDate()).padStart(2,"0")}
+function parse(s){const a=s.split("-").map(Number);return new Date(a[0],a[1]-1,a[2])}
+function daysBetween(a,b){return Math.round((parse(ymd(b))-parse(ymd(a)))/86400000)}
+function dayInfo(ds){
+if(!S.start)return null;
+const n=daysBetween(S.start,ds);
+if(n<0)return{before:true,n:n};
+const week=Math.floor(n/7)+1;
+const dow=parse(ds).getDay();
+if(week>WEEKS.length)return{after:true,n:n,week:week};
+return{n:n,week:week,dow:dow,wk:WEEKS[week-1]}}
+function phaseOf(w){for(const k in PHASES){if(w>=PHASES[k].from&&w<=PHASES[k].to)return PHASES[k].name}return""}
+function tasksFor(ds){
+const info=dayInfo(ds);
+if(!info||info.before||info.after)return[];
+const wk=info.wk,dow=info.dow,week=info.week;
+if(dow===0)return[{id:ds+"-rest",text:"Rest day. Zero coding. Recharge.",mins:0}];
+const t=[];
+if(S.examWeeks[week]){
+t.push({id:ds+"-L",text:"[Exam week] "+wk.learn,mins:20});
+t.push({id:ds+"-B",text:"[Exam week] "+wk.build,mins:15});
+t.push({id:ds+"-W",text:"[Exam week] "+wk.write,mins:10});
+return t}
+t.push({id:ds+"-L",text:"LEARN: "+wk.learn,mins:60});
+t.push({id:ds+"-B",text:"BUILD: "+wk.build,mins:60});
+t.push({id:ds+"-W",text:"WRITE: "+wk.write,mins:30});
+if(dow===5)t.push({id:ds+"-F",text:"Test the game on your phone. Can you play it right now?",mins:15});
+if(dow===6)t.push({id:ds+"-S",text:"Long session (3h): catch up on anything behind",mins:60});
+return t}
+function streak(){
+let s=0,d=new Date();
+const tt=tasksFor(ymd(d));
+if(!(tt.length&&tt.every(x=>S.done[x.id])))d.setDate(d.getDate()-1);
+for(let i=0;i<400;i++){
+const ds=ymd(d),info=dayInfo(ds);
+if(!info||info.before)break;
+const t=tasksFor(ds);
+if(!t.length){d.setDate(d.getDate()-1);continue}
+if(t.every(x=>S.done[x.id])){s++;d.setDate(d.getDate()-1)}else break}
+return s}
+function overall(){
+let total=0,done=0;
+for(let i=0;i<WEEKS.length*7;i++){
+const d=parse(S.start);d.setDate(d.getDate()+i);
+tasksFor(ymd(d)).forEach(x=>{total++;if(S.done[x.id])done++})}
+return total?Math.round(done/total*100):0}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function toast(m){const t=document.createElement("div");t.className="toast";t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove()},2200)}
+  let tab="today";
+const app=document.getElementById("app");
+function render(){
+document.querySelectorAll("nav button").forEach(function(b){b.classList.toggle("on",b.dataset.tab===tab)});
+if(tab==="today")app.innerHTML=todayView();
+else if(tab==="plan")app.innerHTML=planView();
+else if(tab==="progress")app.innerHTML=progressView();
+else app.innerHTML=settingsView();
+bind()}
+function todayView(){
+const ds=ymd(new Date()),info=dayInfo(ds);
+if(info.before)return'<h1>Not started yet</h1><div class="card"><p class="big">'+(-info.n)+'</p><p class="muted">days until Day 1 ('+S.start+'). Install Godot and get ready.</p></div>';
+if(info.after)return'<h1>Roadmap complete</h1><div class="card"><p>You finished all '+WEEKS.length+' weeks. Keep improving your game.</p></div>';
+const tasks=tasksFor(ds);
+const doneN=tasks.filter(function(t){return S.done[t.id]}).length;
+const pct=tasks.length?Math.round(doneN/tasks.length*100):0;
+const dn=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][info.dow];
+let h='<h1>'+dn+', '+new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"})+'</h1>';
+h+='<div class="muted">Day '+(info.n+1)+' - Week '+info.week+' of '+WEEKS.length+'</div>';
+h+='<div class="row" style="margin:8px 0"><span class="pill">'+esc(phaseOf(info.week))+'</span>'+(S.examWeeks[info.week]?'<span class="pill w">Exam week</span>':'')+'</div>';
+h+='<div class="card"><h2>'+esc(info.wk.t)+'</h2><div class="bar"><i style="width:'+pct+'%"></i></div>';
+h+='<div class="muted" style="margin-top:6px">'+doneN+'/'+tasks.length+' done today</div>';
+tasks.forEach(function(t){
+h+='<label class="task '+(S.done[t.id]?'done':'')+'"><input type="checkbox" data-id="'+t.id+'" '+(S.done[t.id]?'checked':'')+'><span>'+esc(t.text)+(t.mins?'<em class="mins">'+t.mins+' min</em>':'')+'</span></label>'});
+h+='</div><div class="stats"><div class="stat"><b>'+streak()+'</b><span class="muted">day streak</span></div><div class="stat"><b>'+overall()+'%</b><span class="muted">overall</span></div><div class="stat"><b>'+info.week+'</b><span class="muted">week</span></div></div>';
+if(info.dow!==0)h+='<div class="card"><h2>This week\'s milestone</h2><div class="ms">'+esc(info.wk.ms)+'</div></div>';
+return h}
+function planView(){
+const cur=dayInfo(ymd(new Date()));
+const cw=cur&&cur.week?cur.week:0;
+let o='<h1>Full plan</h1><p class="muted">Tap a week to see its tasks.</p>';
+for(const k in PHASES){
+const p=PHASES[k];
+o+='<h2 style="margin-top:18px">'+esc(p.name)+'</h2>';
+for(let w=p.from;w<=p.to;w++){
+const wk=WEEKS[w-1];
+o+='<details class="week '+(w===cw?'cur':'')+'" '+(w===cw?'open':'')+'><summary>Week '+w+': '+esc(wk.t)+(w===cw?' <span class="pill g">now</span>':'')+'</summary>';
+o+='<div class="muted"><b>Learn:</b> '+esc(wk.learn)+'</div><div class="muted"><b>Build:</b> '+esc(wk.build)+'</div><div class="muted"><b>Write:</b> '+esc(wk.write)+'</div><div class="ms">'+esc(wk.ms)+'</div></details>'}}
+return o}
+function progressView(){
+let rows="";
+for(const k in PHASES){
+const p=PHASES[k];let total=0,done=0;
+for(let w=p.from;w<=p.to;w++){for(let d=0;d<7;d++){
+const dt=parse(S.start);dt.setDate(dt.getDate()+(w-1)*7+d);
+tasksFor(ymd(dt)).forEach(function(t){total++;if(S.done[t.id])done++})}}
+const pct=total?Math.round(done/total*100):0;
+rows+='<div class="card"><div class="row between"><b>'+esc(p.name)+'</b><span class="muted">'+pct+'%</span></div><div class="bar" style="margin-top:8px"><i style="width:'+pct+'%"></i></div></div>'}
+const end=parse(S.start);end.setDate(end.getDate()+WEEKS.length*7-1);
+return'<h1>Progress</h1><div class="stats"><div class="stat"><b>'+streak()+'</b><span class="muted">streak</span></div><div class="stat"><b>'+overall()+'%</b><span class="muted">overall</span></div><div class="stat"><b>'+Object.values(S.done).filter(Boolean).length+'</b><span class="muted">tasks done</span></div></div>'+rows+'<div class="card"><div class="muted">Planned launch week ends: '+end.toDateString()+'</div></div>'}
+function settingsView(){
+let wr="";
+for(let w=1;w<=WEEKS.length;w++){wr+='<label style="display:inline-flex;align-items:center;gap:6px;margin:4px 8px 4px 0;font-size:13px;color:var(--text)"><input type="checkbox" data-exam="'+w+'" '+(S.examWeeks[w]?'checked':'')+'> W'+w+'</label>'}
+return'<h1>Settings</h1>'+
+'<div class="card"><h2>Start date</h2><input type="date" id="sd2" value="'+S.start+'"><p class="muted">Changing it moves the whole plan.</p><button class="sec" id="savesd">Save start date</button></div>'+
+'<div class="card"><h2>Reminder times</h2><label>Morning</label><input type="time" id="t1" value="'+S.times.morning+'"><label>Afternoon</label><input type="time" id="t2" value="'+S.times.mid+'"><label>Evening</label><input type="time" id="t3" value="'+S.times.evening+'"><div style="margin-top:10px"><button id="savet">Save times</button></div><div style="margin-top:8px"><button class="sec" id="enable">Enable notifications</button></div><div style="margin-top:8px"><button class="sec" id="test">Send a test notification</button></div><div class="notice">Tip: also set alarms in your phone Clock app. They never fail.</div></div>'+
+'<div class="card"><h2>Exam weeks</h2><p class="muted">Tick exam weeks. Daily tasks shrink to about 45 minutes.</p><div>'+wr+'</div></div>'+
+'<div class="card"><h2>Data</h2><button class="sec" id="reset">Reset everything</button></div>'}
+  function bind(){
+const g=function(id){return document.getElementById(id)};
+document.querySelectorAll(".task input").forEach(function(cb){cb.onchange=function(){S.done[cb.dataset.id]=cb.checked;save();render()}});
+if(g("savesd"))g("savesd").onclick=function(){if(g("sd2").value){S.start=g("sd2").value;save();toast("Start date saved")}};
+if(g("savet"))g("savet").onclick=function(){S.times={morning:g("t1").value,mid:g("t2").value,evening:g("t3").value};save();toast("Times saved")};
+if(g("enable"))g("enable").onclick=function(){
+if(!("Notification" in window)){toast("No notification support here");return}
+Notification.requestPermission().then(function(r){toast(r==="granted"?"Notifications enabled":"Notifications blocked")})};
+if(g("test"))g("test").onclick=function(){fire("Test notification","If you see this, notifications work.")};
+if(g("reset"))g("reset").onclick=function(){if(confirm("Delete all progress?")){localStorage.removeItem(KEY);S=load();render()}};
+document.querySelectorAll("[data-exam]").forEach(function(cb){cb.onchange=function(){S.examWeeks[cb.dataset.exam]=cb.checked;save()}})}
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){tab=b.dataset.tab;render()}});
+function fire(title,body){
+try{
+if("Notification" in window&&Notification.permission==="granted"){new Notification(title,{body:body})}
+else toast("Notifications are not enabled")}
+catch(e){toast("Could not show notification")}}
+let fired=JSON.parse(localStorage.getItem("roadmapApp.fired")||"{}");
+function tick(){
+if(!S.start||!S.notif)return;
+if(!("Notification" in window)||Notification.permission!=="granted")return;
+const now=new Date(),ds=ymd(now);
+const info=dayInfo(ds);
+if(!info||info.before||info.after)return;
+const slots=[["morning",S.times.morning],["mid",S.times.mid],["evening",S.times.evening]];
+slots.forEach(function(s){
+const k=ds+"-"+s[0];
+const hm=s[1].split(":").map(Number);
+const target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),hm[0],hm[1]);
+const late=(now-target)/60000;
+if(late>=0&&late<=180&&!fired[k]){
+fired[k]=1;localStorage.setItem("roadmapApp.fired",JSON.stringify(fired));
+if(info.dow===0){fire("Rest day","Zero coding today. Recharge.")}
+else if(s[0]==="morning"){fire("Week "+info.week+": "+info.wk.t,"LEARN: "+info.wk.learn)}
+else if(s[0]==="mid"){fire("Build time",info.wk.build)}
+else{fire("Evening check-in","Did you finish today's tasks? Open the app and tick them.")}}})}
+setInterval(tick,30000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){tick();render()}});
+render();tick();
+</script>
+</body>
+</html>
