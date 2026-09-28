@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <title>Game Roadmap Tracker</title>
+  <link rel="manifest" href="manifest.json">
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--text:#f1f5f9;--muted:#94a3b8;--accent:#22c55e;--accent2:#38bdf8;--warn:#f59e0b;--line:#334155}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -240,6 +241,7 @@ else if(s[0]==="mid"){fire("Build time",info.wk.build)}
 else{fire("Evening check-in","Did you finish today's tasks? Open the app and tick them.")}}})}
 setInterval(tick,30000);
 document.addEventListener("visibilitychange",function(){if(!document.hidden){tick();render()}});
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js")}
 render();tick();
 </script>
 </body>
