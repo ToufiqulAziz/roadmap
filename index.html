@@ -116,15 +116,13 @@ const wk=info.wk,dow=info.dow,week=info.week;
 if(dow===0)return[{id:ds+"-rest",text:"Rest day. Zero coding. Recharge.",mins:0}];
 const t=[];
 if(S.examWeeks[week]){
-t.push({id:ds+"-L",text:"[Exam week] "+wk.learn,mins:20});
+t.push({id:ds+"-L",text:"[Exam week] "+wk.learn,mins:15});
 t.push({id:ds+"-B",text:"[Exam week] "+wk.build,mins:15});
-t.push({id:ds+"-W",text:"[Exam week] "+wk.write,mins:10});
+t.push({id:ds+"-W",text:"[Exam week] "+wk.write,mins:15});
 return t}
-t.push({id:ds+"-L",text:"LEARN: "+wk.learn,mins:60});
-t.push({id:ds+"-B",text:"BUILD: "+wk.build,mins:60});
+t.push({id:ds+"-L",text:"LEARN: "+wk.learn,mins:40});
+t.push({id:ds+"-B",text:"BUILD: "+wk.build,mins:50});
 t.push({id:ds+"-W",text:"WRITE: "+wk.write,mins:30});
-if(dow===5)t.push({id:ds+"-F",text:"Test the game on your phone. Can you play it right now?",mins:15});
-if(dow===6)t.push({id:ds+"-S",text:"Long session (3h): catch up on anything behind",mins:60});
 return t}
 function streak(){
 let s=0,d=new Date();
